@@ -2,6 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
+import argparse
 
 load_dotenv()
 key = os.environ["AT_API_KEY"]
@@ -44,5 +45,9 @@ def get_departures(stop_id, limit=3):
     return results
 
 if __name__ == "__main__":
-    for d in get_departures("7394-7baa4c89", 7):
+    parser = argparse.ArgumentParser(description="Show next bus departures for an Auckland stop")
+    parser.add_argument("stop_id", help="Stop ID")
+    parser.add_argument("-n", type=int, default=3, help="Number of departures")
+    args = parser.parse_args()
+    for d in get_departures(args.stop_id, args.n):
         print(f"{d['route']}  {d['minutes']} minutes away")
