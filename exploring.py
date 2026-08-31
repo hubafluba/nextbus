@@ -12,7 +12,8 @@ def get_departures(stop_id, limit=3):
     url = f"https://api.at.govt.nz/gtfs/v3/stops/{stop_id}/stoptrips"
     params = {
         "filter[date]": now.strftime("%Y-%m-%d"),
-        "filter[start_hour]": now.hour
+        "filter[start_hour]": now.hour,
+        "filter[hour_range]": 4
     }
     headers = {"Ocp-Apim-Subscription-Key": key}
     r = requests.get(url, params=params, headers=headers)
@@ -43,5 +44,5 @@ def get_departures(stop_id, limit=3):
     return results
 
 if __name__ == "__main__":
-    for d in get_departures("7394-7baa4c89", 3):
+    for d in get_departures("7394-7baa4c89", 7):
         print(f"{d['route']}  {d['minutes']} minutes away")
