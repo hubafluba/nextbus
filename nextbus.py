@@ -7,6 +7,7 @@ import argparse
 
 load_dotenv()
 key = os.environ["AT_API_KEY"]
+headers = {"Ocp-Apim-Subscription-Key": key}
 
 def get_departures(stop_id, limit=3):
     """Return upcoming departures for a stop
@@ -28,7 +29,6 @@ def get_departures(stop_id, limit=3):
         "filter[start_hour]": now.hour,
         "filter[hour_range]": 4
     }
-    headers = {"Ocp-Apim-Subscription-Key": key}
     r = requests.get(url, params=params, headers=headers)
 
     # Finds the attributes of the upcoming departures and stores them, filtering out any that have already departed
@@ -64,9 +64,9 @@ def get_departures(stop_id, limit=3):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Show next bus departures for an Auckland stop")
     parser.add_argument("stop_id", help="Stop ID")
-    parser.add_argument("-n", type=int, default=3, help="Number of departures")
+    parser.add_argument("limit", nargs = "?", type=int, default=3, help="Number of departures")
     args = parser.parse_args()
-    departures = get_departures(args.stop_id, args.n)
+    departures = get_departures(args.stop_id, args.limit)
     if not departures:
         print("No upcoming departures found.")
     for d in departures:
