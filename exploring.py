@@ -18,8 +18,22 @@ params = {
 headers = {"Ocp-Apim-Subscription-Key": key}
 
 r = requests.get(url, params=params, headers=headers)
+upcoming = []
 for item in r.json()["data"]:
-    a = item["attributes"]
-    dep = datetime.strptime(a["departure_time"], "%H:%M:%S").time()
+    attributes = item["attributes"]
+    dep = datetime.strptime(attributes["departure_time"], "%H:%M:%S").time()
     if dep >= now.time():
-        print(a["departure_time"], a["stop_headsign"], a["route_id"])
+        upcoming.append(attributes)
+
+route_ids = {a["route_id"] for a in upcoming[:3]}
+names = {}
+for rid in route_ids:
+    r2 = requests.get(f"https://api.at.govt.nz/gtfs/v3/routes/{rid}", headers=headers)
+    names[rid] = r2.json()["data"]["attributes"]["route_short_name"]
+
+for attributes in upcoming[:3]:
+    dep = datetime.strptime(attributes["departure_time"], "%H:%M:%S").time()
+    dep_dt = datetime.combine(now.date(), dep)
+    mins = int((dep_dt - now).total_seconds() // 60)
+    name = names[attributes["route_id"]]
+    print(f"{name}  {mins} minutes away")
